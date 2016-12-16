@@ -1,4 +1,7 @@
 package servlets;
+import model.Cliente;
+
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -7,6 +10,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by sg-0036936 on 13/12/2016.
@@ -14,6 +19,8 @@ import java.io.IOException;
 
 @WebServlet(urlPatterns = {"/cliente", "/clienteServlet", "/clienteController"})
 public class ClienteServlet extends HttpServlet {
+
+    List<Cliente> listaClientes = new ArrayList<Cliente>();
 
     public ClienteServlet(){
         System.out.println("Construtor do servlet.");
@@ -34,7 +41,9 @@ public class ClienteServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        System.out.println("Chamou pelo método GET");
+        RequestDispatcher dispatcher = req.getRequestDispatcher("cliente.jsp");
+        req.setAttribute("lista", listaClientes);
+        dispatcher.forward(req, resp);
     }
 
     @Override
@@ -44,8 +53,23 @@ public class ClienteServlet extends HttpServlet {
 
         resp.setCharacterEncoding("UTF-8"); //pra funcionar acentos na mensagem
 
+        //recebendo o email
         String email = req.getParameter("email");
-        resp.getWriter().println("Chamou método post com o email " + email + "!"); //print on the screen some message
+        //Colocando email de um cliente na classe cliente
+        Cliente novoCliente = new Cliente();
+        novoCliente.setEmail(email);
+        //colocando o email na lista clientes
+        listaClientes.add(novoCliente);
+
+        RequestDispatcher dispatcher = req.getRequestDispatcher("cliente.jsp");
+        req.setAttribute("msg", "Cadastrado com sucesso!");
+        req.setAttribute("lista", listaClientes);
+        dispatcher.forward(req, resp);
+
+        //redirecionamento
+        //resp.sendRedirect("cliente");
+
+        //resp.getWriter().println("Chamou método post com o email " + email + "!"); //print on the screen some message
 
     }
 
