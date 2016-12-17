@@ -1,5 +1,7 @@
 package servlets;
+
 import model.Cliente;
+import service.ClienteService;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -20,15 +22,18 @@ import java.util.List;
 @WebServlet(urlPatterns = {"/cliente", "/clienteServlet", "/clienteController"})
 public class ClienteServlet extends HttpServlet {
 
-    List<Cliente> listaClientes = new ArrayList<Cliente>();
 
-    public ClienteServlet(){
+    //Objeto que gerencia a lista.
+    ClienteService clienteService;
+
+    public ClienteServlet() {
         System.out.println("Construtor do servlet.");
     }
 
     @Override
     public void init() throws ServletException {
         System.out.println("Inicializando o servlet.");
+        clienteService = new ClienteService();
         super.init();
     }
 
@@ -41,8 +46,15 @@ public class ClienteServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
+        Cliente cliente = new Cliente();
+        String i = req.getParameter("i");
+        if (i != null && i != "") {
+                clienteService.excluir(Integer.parseInt(i));
+            }
+
+
         RequestDispatcher dispatcher = req.getRequestDispatcher("cliente.jsp");
-        req.setAttribute("lista", listaClientes);
+        req.setAttribute("lista", clienteService.getListaClientes());
         dispatcher.forward(req, resp);
     }
 
@@ -53,17 +65,18 @@ public class ClienteServlet extends HttpServlet {
 
         resp.setCharacterEncoding("UTF-8"); //pra funcionar acentos na mensagem
 
+
         //recebendo o email
         String email = req.getParameter("email");
         //Colocando email de um cliente na classe cliente
         Cliente novoCliente = new Cliente();
         novoCliente.setEmail(email);
         //colocando o email na lista clientes
-        listaClientes.add(novoCliente);
+        clienteService.cadastrar(novoCliente);
 
         RequestDispatcher dispatcher = req.getRequestDispatcher("cliente.jsp");
         req.setAttribute("msg", "Cadastrado com sucesso!");
-        req.setAttribute("lista", listaClientes);
+        req.setAttribute("lista", clienteService.getListaClientes());
         dispatcher.forward(req, resp);
 
         //redirecionamento
